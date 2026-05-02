@@ -1,0 +1,15 @@
+{
+  "competitor": "competitor_one",
+  "post_shortcode": "ABC123xyz",
+  "post_url": "https://www.instagram.com/p/ABC123xyz/",
+  "image_url": "https://instagram.example/image.jpg",
+  "caption": "New launch announcement",
+  "likes": 1250,
+  "comments": 84,
+  "followers": 42000,
+  "engagement_rate": 3.18,
+  "is_viral": true,
+  "viral_threshold_percent": 2,
+  "taken_at": "2026-05-02T09:00:00+00:00",
+  "scraped_at": "2026-05-02T10:00:00+00:00"
+}

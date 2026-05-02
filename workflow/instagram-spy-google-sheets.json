@@ -1,0 +1,255 @@
+{
+  "name": "Instagram Competitor Spy Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "instagram-spy",
+        "options": {}
+      },
+      "name": "Instagram Post Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -440,
+        -80
+      ],
+      "id": "4c9ed4fc-1821-439a-a831-0188a2823c8a"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Instagram Spy",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.body.scraped_at }}",
+            "Competitor": "={{ $json.body.competitor }}",
+            "Post Shortcode": "={{ $json.body.post_shortcode }}",
+            "Post URL": "={{ $json.body.post_url }}",
+            "Image URL": "={{ $json.body.image_url }}",
+            "Caption": "={{ $json.body.caption }}",
+            "Likes": "={{ $json.body.likes }}",
+            "Comments": "={{ $json.body.comments }}",
+            "Followers": "={{ $json.body.followers }}",
+            "Engagement Rate": "={{ $json.body.engagement_rate }}",
+            "Is Viral": "={{ $json.body.is_viral }}",
+            "Viral Threshold": "={{ $json.body.viral_threshold_percent }}",
+            "Taken At": "={{ $json.body.taken_at }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Competitor",
+              "displayName": "Competitor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post Shortcode",
+              "displayName": "Post Shortcode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post URL",
+              "displayName": "Post URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Likes",
+              "displayName": "Likes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comments",
+              "displayName": "Comments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Followers",
+              "displayName": "Followers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Engagement Rate",
+              "displayName": "Engagement Rate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Is Viral",
+              "displayName": "Is Viral",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Viral Threshold",
+              "displayName": "Viral Threshold",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Taken At",
+              "displayName": "Taken At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "name": "Log Post Snapshot",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -180,
+        -80
+      ],
+      "id": "bd6571b4-d417-4f12-9beb-6274747b8988"
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = items[0].json;\nconst isViral = String(row['Is Viral']).toLowerCase() === 'true';\nconst engagement = Number(row['Engagement Rate'] || 0);\nconst threshold = Number(row['Viral Threshold'] || 0);\n\nif (!isViral && engagement < threshold) {\n  return [];\n}\n\nconst message = [\n  '**COMPETITOR ALERT**',\n  `User: @${row.Competitor}`,\n  `Likes: ${row.Likes}`,\n  `Comments: ${row.Comments}`,\n  `Engagement: ${engagement}%`,\n  `Link: ${row['Post URL']}`,\n].join('\\n');\n\nreturn [{ json: { message } }];"
+      },
+      "name": "Build Viral Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        -80
+      ],
+      "id": "cbc23c9f-34c4-4e35-a249-41acecf64e93"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "={{ $json.message }}",
+        "options": {}
+      },
+      "name": "Send Discord Alert",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        340,
+        -80
+      ],
+      "id": "b7e14fba-5358-40cb-a0ee-71e2d543baa8"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Instagram Post Webhook": {
+      "main": [
+        [
+          {
+            "node": "Log Post Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Post Snapshot": {
+      "main": [
+        [
+          {
+            "node": "Build Viral Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Viral Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Discord Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
